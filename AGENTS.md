@@ -220,4 +220,3 @@ STOP and ASK the user before:
 * Deleting any file outside of src/ or tests/.
 * Adding a dependency that requires OS-level libraries (e.g., libpq-dev).
 * Committing any secrets or API keys (even for testing).
-
