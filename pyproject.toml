@@ -13,7 +13,8 @@ authors = [
 ]
 dependencies = [
     "loguru>=0.7.2",
-    "dlt[postgres]",
+    "dlt",
+    "dlt[postgres] ; sys_platform == 'linux' and platform_machine == 'x86_64'",
     "dbt-postgres ; sys_platform == 'linux' and platform_machine == 'x86_64'",
     "pydantic",
     "requests",
