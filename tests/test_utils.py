@@ -9,8 +9,6 @@
 # Source Code: https://github.com//coreason_etl_oecd
 
 from pathlib import Path
-import re
-import pytest
 
 from coreason_etl_oecd.utils.logger import logger
 
