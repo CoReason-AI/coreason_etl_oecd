@@ -8,41 +8,34 @@
 #
 # Source Code: https://github.com//coreason_etl_oecd
 
-from pathlib import Path
 
 from coreason_etl_oecd.utils.logger import logger
 
 
-def test_logger_initialization(tmp_path: Path) -> None:
+def test_logger_initialization() -> None:
     """Test that the logger is initialized correctly and creates the log directory."""
-    import importlib
-    import shutil
+    from unittest import mock
 
-    import coreason_etl_oecd.utils.logger
+    from coreason_etl_oecd.utils.logger import init_logger
 
-    # Point to tmp directory and ensure it doesn't exist
-    log_dir = tmp_path / "logs"
-    if log_dir.exists():
-        shutil.rmtree(log_dir)
+    with mock.patch("coreason_etl_oecd.utils.logger.Path") as mock_path_cls:
+        # Create a mock instance
+        mock_log_path = mock.Mock()
+        mock_log_path.exists.return_value = False
 
-    # Test directory creation directly by removing the logs directory
-    # and importing/reloading the logger module
+        # Make the mocked Path class return our mock instance
+        mock_path_cls.return_value = mock_log_path
 
-    # Close any existing logger handlers so Windows can delete the file
-    from loguru import logger
+        # Mock logger.add and logger.remove to avoid any actual side effects
+        with (
+            mock.patch("coreason_etl_oecd.utils.logger.logger.add"),
+            mock.patch("coreason_etl_oecd.utils.logger.logger.remove"),
+        ):
+            # Call the initialization function directly
+            init_logger()
 
-    logger.remove()
-
-    # Ensure logs dir does not exist before reload
-    logs_dir = Path("logs")
-    if logs_dir.exists():
-        shutil.rmtree(logs_dir)
-
-    # Reloading will execute the module level code, which creates the dir
-    importlib.reload(coreason_etl_oecd.utils.logger)
-
-    assert logs_dir.exists()
-    assert logs_dir.is_dir()
+            # Assert mkdir was called
+            mock_log_path.mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 
 def test_logger_exports() -> None:
