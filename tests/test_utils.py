@@ -8,26 +8,34 @@
 #
 # Source Code: https://github.com//coreason_etl_oecd
 
-from pathlib import Path
 
 from coreason_etl_oecd.utils.logger import logger
 
 
 def test_logger_initialization() -> None:
     """Test that the logger is initialized correctly and creates the log directory."""
-    # Since the logger is initialized on import, we check side effects
+    from unittest import mock
 
-    # Check if logs directory creation is handled
-    # Note: running this test might actually create the directory in the test environment
-    # if it doesn't exist.
+    from coreason_etl_oecd.utils.logger import init_logger
 
-    log_path = Path("logs")
-    assert log_path.exists()
-    assert log_path.is_dir()
+    with mock.patch("coreason_etl_oecd.utils.logger.Path") as mock_path_cls:
+        # Create a mock instance
+        mock_log_path = mock.Mock()
+        mock_log_path.exists.return_value = False
 
-    # Verify app.log creation if it was logged to (it might be empty or not created until log)
-    # logger.info("Test log")
-    # assert (log_path / "app.log").exists()
+        # Make the mocked Path class return our mock instance
+        mock_path_cls.return_value = mock_log_path
+
+        # Mock logger.add and logger.remove to avoid any actual side effects
+        with (
+            mock.patch("coreason_etl_oecd.utils.logger.logger.add"),
+            mock.patch("coreason_etl_oecd.utils.logger.logger.remove"),
+        ):
+            # Call the initialization function directly
+            init_logger()
+
+            # Assert mkdir was called
+            mock_log_path.mkdir.assert_called_once_with(parents=True, exist_ok=True)
 
 
 def test_logger_exports() -> None:
