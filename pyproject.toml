@@ -14,7 +14,7 @@ authors = [
 dependencies = [
     "loguru>=0.7.2",
     "dlt[postgres]",
-    "dbt-postgres",
+    "dbt-postgres ; sys_platform == 'linux' and platform_machine == 'x86_64'",
     "pydantic",
     "requests",
     "urllib3",
