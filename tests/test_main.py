@@ -8,7 +8,7 @@
 #
 # Source Code: https://github.com//coreason_etl_oecd
 
-from coreason_etl_oecd.main import hello_world
+from coreason_etl_oecd_health.main import hello_world
 
 
 def test_hello_world() -> None:
