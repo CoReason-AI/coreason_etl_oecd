@@ -13,21 +13,31 @@ from pathlib import Path
 from coreason_etl_oecd.utils.logger import logger
 
 
-def test_logger_initialization() -> None:
+def test_logger_initialization(tmp_path: Path) -> None:
     """Test that the logger is initialized correctly and creates the log directory."""
-    # Since the logger is initialized on import, we check side effects
+    import importlib
+    import shutil
 
-    # Check if logs directory creation is handled
-    # Note: running this test might actually create the directory in the test environment
-    # if it doesn't exist.
+    import coreason_etl_oecd.utils.logger
 
-    log_path = Path("logs")
-    assert log_path.exists()
-    assert log_path.is_dir()
+    # Point to tmp directory and ensure it doesn't exist
+    log_dir = tmp_path / "logs"
+    if log_dir.exists():
+        shutil.rmtree(log_dir)
 
-    # Verify app.log creation if it was logged to (it might be empty or not created until log)
-    # logger.info("Test log")
-    # assert (log_path / "app.log").exists()
+    # Test directory creation directly by removing the logs directory
+    # and importing/reloading the logger module
+
+    # Ensure logs dir does not exist before reload
+    logs_dir = Path("logs")
+    if logs_dir.exists():
+        shutil.rmtree(logs_dir)
+
+    # Reloading will execute the module level code, which creates the dir
+    importlib.reload(coreason_etl_oecd.utils.logger)
+
+    assert logs_dir.exists()
+    assert logs_dir.is_dir()
 
 
 def test_logger_exports() -> None:
