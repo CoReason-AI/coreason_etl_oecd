@@ -28,6 +28,11 @@ def test_logger_initialization(tmp_path: Path) -> None:
     # Test directory creation directly by removing the logs directory
     # and importing/reloading the logger module
 
+    # Close any existing logger handlers so Windows can delete the file
+    from loguru import logger
+
+    logger.remove()
+
     # Ensure logs dir does not exist before reload
     logs_dir = Path("logs")
     if logs_dir.exists():
