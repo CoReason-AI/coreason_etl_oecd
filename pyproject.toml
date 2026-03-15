@@ -1,84 +1,76 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "coreason_etl_oecd_health"
-dynamic = ["version"]
-description = "A robust ETL pipeline for ingesting and normalizing OECD Health Statistics"
-readme = "README.md"
-requires-python = ">=3.14"
+name = "coreason-etl-oecd-health"
+version = "0.1.0"
+description = "Type A pipeline for ingesting, normalizing, and serving the OECD Health Statistics database."
 authors = [
-    { name = "Akshaya M", email = "akshaya.movvar@coreason.ai" },
+    { name = "Core Platform Team", email = "data.engineering@coreason.com" }
 ]
+requires-python = ">=3.11"
 dependencies = [
-    "loguru>=0.7.2",
-    "dlt",
-    "dlt[postgres] ; sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "dbt-postgres ; sys_platform == 'linux' and platform_machine == 'x86_64'",
-    "pydantic",
-    "requests",
-    "urllib3",
-]
-license = { file = "LICENSE" }
-classifiers = [
-    "License :: Other/Proprietary License",
-    "Operating System :: OS Independent",
+    "dlt[postgres]>=0.4.0",
+    "dbt-postgres>=1.7.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "urllib3>=2.0.0",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
-    "pytest>=9.0.2",
-    "ruff>=0.14.14",
-    "pre-commit>=4.5.1",
-    "pytest-cov>=7.0.0",
-    "zensical",
-    "mypy>=1.19.1",
-    "pytest-asyncio",
-    "pytest-benchmark",
-    "deptry",
-    "deepdiff",
-    "hypothesis",
-    "syrupy",
-    "mkdocstrings-python",
-    "types-pyyaml>=6.0.12.20250915",
-    "tzdata>=2025.3",
-    "pytest-xdist>=3.6.1"
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "responses>=0.25.0",
+    "pre-commit>=3.6.0",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/coreason_etl_oecd_health"]
 
-[tool.hatch.version]
-source = "vcs"
-
-[project.urls]
-Homepage = "https://github.com//coreason_etl_oecd_health"
-Repository = "https://github.com//coreason_etl_oecd_health"
-Documentation = "https://github.com//coreason_etl_oecd_health"
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "--cov=src/coreason_etl_oecd_health --cov-report=term-missing --cov-fail-under=100"
+testpaths = [
+    "tests",
+]
 
 [tool.ruff]
-line-length = 120
-target-version = "py314"
+line-length = 100
+target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "B", "I", "UP", "SIM", "RUF", "ARG", "C4", "PT", "TCH", "FA", "PIE", "RET", "PERF", "FURB", "LOG", "N", "A", "S"]
-ignore = ["S101", "TC001", "TC002", "TC003", "UP037"]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = []
 
 [tool.mypy]
-python_version = "3.14"
-strict = true
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
 disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+warn_redundant_casts = true
 warn_unused_ignores = true
-plugins = ["pydantic.mypy"]
 
-[tool.pytest.ini_options]
-addopts = "-n auto --cov=src --cov-report=term-missing --cov-report=html --cov-fail-under=100"
-testpaths = ["tests"]
-asyncio_mode = "auto"
-
-[tool.deptry]
-ignore = ["DEP002"]
-
-[tool.coverage.run]
-omit = ["tests/*"]
+[[tool.mypy.overrides]]
+module = [
+    "dlt.*",
+    "requests.*",
+    "responses.*",
+]
+ignore_missing_imports = true

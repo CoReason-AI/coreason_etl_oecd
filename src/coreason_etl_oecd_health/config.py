@@ -1,48 +1,28 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 
 
-class OecdApiConfig(BaseModel):
-    """Configuration for OECD Health Statistics ingestion."""
+class OECDHealthConfig(BaseModel):
+    """Configuration for the OECD Health Statistics extraction."""
 
-    base_url: HttpUrl = Field(
-        default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
-        description="The base SDMX REST API endpoint.",
+    base_endpoint: str = Field(
+        default="https://sdmx.oecd.org/public/rest/data/",
+        description="The base SDMX REST API endpoint for OECD.",
     )
 
-    datasets: list[str] = Field(
+    target_datasets: list[str] = Field(
         default=[
             "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
             "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
             "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
         ],
-        description="List of target dataset identifiers to ingest.",
+        description="List of target datasets to extract from OECD.",
     )
 
-    headers: dict[str, str] = Field(
-        default={
-            "Accept": "text/csv",
-            "Accept-Encoding": "gzip",
-        },
-        description="HTTP headers required for the API requests.",
+    accept_header: str = Field(
+        default="text/csv", description="The Accept header to force CSV format returns."
     )
 
-    timeout: int = Field(
-        default=60,
-        description="Timeout in seconds for API requests.",
-        ge=1,
-    )
-
-    chunk_by_year: bool = Field(
-        default=True,
-        description="Whether to chunk API requests by TIME_PERIOD (year).",
-    )
-
-    start_year: int = Field(
-        default=2000,
-        description="The start year for chunking.",
-    )
-
-    end_year: int = Field(
-        default=2026,
-        description="The end year for chunking.",
+    chunk_by: str = Field(
+        default="TIME_PERIOD",
+        description="The dimension to chunk requests by to avoid Gateway Timeouts.",
     )
