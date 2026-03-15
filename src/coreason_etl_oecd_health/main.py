@@ -8,7 +8,7 @@
 #
 # Source Code: https://github.com//coreason_etl_oecd
 
-from coreason_etl_oecd.utils.logger import logger
+from coreason_etl_oecd_health.utils.logger import logger
 
 
 def hello_world() -> str:

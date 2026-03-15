@@ -9,16 +9,16 @@
 # Source Code: https://github.com//coreason_etl_oecd
 
 
-from coreason_etl_oecd.utils.logger import logger
+from coreason_etl_oecd_health.utils.logger import logger
 
 
 def test_logger_initialization() -> None:
     """Test that the logger is initialized correctly and creates the log directory."""
     from unittest import mock
 
-    from coreason_etl_oecd.utils.logger import init_logger
+    from coreason_etl_oecd_health.utils.logger import init_logger
 
-    with mock.patch("coreason_etl_oecd.utils.logger.Path") as mock_path_cls:
+    with mock.patch("coreason_etl_oecd_health.utils.logger.Path") as mock_path_cls:
         # Create a mock instance
         mock_log_path = mock.Mock()
         mock_log_path.exists.return_value = False
@@ -28,8 +28,8 @@ def test_logger_initialization() -> None:
 
         # Mock logger.add and logger.remove to avoid any actual side effects
         with (
-            mock.patch("coreason_etl_oecd.utils.logger.logger.add"),
-            mock.patch("coreason_etl_oecd.utils.logger.logger.remove"),
+            mock.patch("coreason_etl_oecd_health.utils.logger.logger.add"),
+            mock.patch("coreason_etl_oecd_health.utils.logger.logger.remove"),
         ):
             # Call the initialization function directly
             init_logger()

@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "coreason_etl_oecd"
+name = "coreason_etl_oecd_health"
 dynamic = ["version"]
 description = "A robust ETL pipeline for ingesting and normalizing OECD Health Statistics"
 readme = "README.md"
@@ -47,15 +47,15 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/coreason_etl_oecd"]
+packages = ["src/coreason_etl_oecd_health"]
 
 [tool.hatch.version]
 source = "vcs"
 
 [project.urls]
-Homepage = "https://github.com//coreason_etl_oecd"
-Repository = "https://github.com//coreason_etl_oecd"
-Documentation = "https://github.com//coreason_etl_oecd"
+Homepage = "https://github.com//coreason_etl_oecd_health"
+Repository = "https://github.com//coreason_etl_oecd_health"
+Documentation = "https://github.com//coreason_etl_oecd_health"
 
 [tool.ruff]
 line-length = 120
