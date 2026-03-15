@@ -117,7 +117,7 @@ wheels = [
 ]
 
 [[package]]
-name = "coreason-etl-oecd"
+name = "coreason-etl-oecd-health"
 source = { editable = "." }
 dependencies = [
     { name = "dbt-postgres", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
