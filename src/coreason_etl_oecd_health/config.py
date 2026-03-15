@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, HttpUrl
 
 
-class OECDHealthConfig(BaseModel):
+class OecdApiConfig(BaseModel):
     """Configuration for OECD Health Statistics ingestion."""
 
     base_url: HttpUrl = Field(
@@ -30,4 +30,19 @@ class OECDHealthConfig(BaseModel):
         default=60,
         description="Timeout in seconds for API requests.",
         ge=1,
+    )
+
+    chunk_by_year: bool = Field(
+        default=True,
+        description="Whether to chunk API requests by TIME_PERIOD (year).",
+    )
+
+    start_year: int = Field(
+        default=2000,
+        description="The start year for chunking.",
+    )
+
+    end_year: int = Field(
+        default=2026,
+        description="The end year for chunking.",
     )
