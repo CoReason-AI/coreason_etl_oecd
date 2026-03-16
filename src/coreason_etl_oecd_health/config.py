@@ -1,32 +1,38 @@
-# Copyright (c) 2026 CoReason, Inc.
+# Copyright (c) CoReason, Inc.
 # This software is released under the Prosperity Public License 3.0.
-# For full license details, see the LICENSE file in the project root.
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HttpUrl
 
 
-class OECDHealthConfig(BaseModel):
-    """Configuration for the OECD Health Statistics extraction."""
+class OECDDatasetConfig(BaseModel):
+    """Configuration for a specific OECD dataset."""
 
-    base_endpoint: str = Field(
-        default="https://sdmx.oecd.org/public/rest/data/",
-        description="The base SDMX REST API endpoint for OECD.",
+    id: str = Field(..., description="The SDMX dataset identifier.")
+    description: str = Field(..., description="A human-readable description of the dataset.")
+    version: str = Field(default="1.0", description="The dataset version.")
+
+
+class OECDApiConfig(BaseModel):
+    """Configuration for the OECD SDMX API."""
+
+    base_url: HttpUrl = Field(
+        default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
+        description="The base endpoint for the OECD SDMX REST API.",
     )
-
-    target_datasets: list[str] = Field(
-        default=[
-            "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
-            "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
-            "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
+    datasets: list[OECDDatasetConfig] = Field(
+        default_factory=lambda: [
+            OECDDatasetConfig(
+                id="OECD.ELS.HD,DSD_SHA@DF_SHA",
+                description="Health Expenditure",
+            ),
+            OECDDatasetConfig(
+                id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC",
+                description="Provider Resources",
+            ),
+            OECDDatasetConfig(
+                id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC",
+                description="Healthcare Utilisation",
+            ),
         ],
-        description="List of target datasets to extract from OECD.",
-    )
-
-    accept_header: str = Field(
-        default="text/csv", description="The Accept header to force CSV format returns."
-    )
-
-    chunk_by: str = Field(
-        default="TIME_PERIOD",
-        description="The dimension to chunk requests by to avoid Gateway Timeouts.",
+        description="List of target datasets to ingest.",
     )
