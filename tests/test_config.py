@@ -36,15 +36,15 @@ def test_oecd_api_config_defaults() -> None:
     assert len(config.datasets) == 3
 
     # Check datasets defaults
-    assert config.datasets[0].id == "OECD.ELS.HD,DSD_SHA@DF_SHA"
+    assert config.datasets[0].id == "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
     assert config.datasets[0].description == "Health Expenditure"
     assert config.datasets[0].version == "1.0"
 
-    assert config.datasets[1].id == "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC"
+    assert config.datasets[1].id == "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0"
     assert config.datasets[1].description == "Provider Resources"
     assert config.datasets[1].version == "1.0"
 
-    assert config.datasets[2].id == "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC"
+    assert config.datasets[2].id == "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0"
     assert config.datasets[2].description == "Healthcare Utilisation"
     assert config.datasets[2].version == "1.0"
 
