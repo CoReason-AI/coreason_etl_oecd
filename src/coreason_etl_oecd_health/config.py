@@ -22,15 +22,15 @@ class OECDApiConfig(BaseModel):
     datasets: list[OECDDatasetConfig] = Field(
         default_factory=lambda: [
             OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_SHA@DF_SHA",
+                id="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
                 description="Health Expenditure",
             ),
             OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC",
+                id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
                 description="Provider Resources",
             ),
             OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC",
+                id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
                 description="Healthcare Utilisation",
             ),
         ],
