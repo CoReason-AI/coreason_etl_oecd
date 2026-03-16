@@ -1,42 +1,35 @@
-# coreason_etl_oecd
+# coreason-etl-oecd-health
 
-A robust ETL pipeline for ingesting and normalizing OECD Health Statistics
+A robust ETL pipeline for ingesting, normalizing, and serving the OECD Health Statistics database.
 
-[![CI/CD](https://github.com//coreason_etl_oecd/actions/workflows/ci-cd.yml/badge.svg)](https://github.com//coreason_etl_oecd/actions/workflows/ci-cd.yml)
-[![PyPI](https://img.shields.io/pypi/v/coreason_etl_oecd.svg)](https://pypi.org/project/coreason_etl_oecd/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/coreason_etl_oecd.svg)](https://pypi.org/project/coreason_etl_oecd/)
-[![License](https://img.shields.io/github/license//coreason_etl_oecd)](https://github.com//coreason_etl_oecd/blob/main/LICENSE)
-[![Codecov](https://codecov.io/gh//coreason_etl_oecd/branch/main/graph/badge.svg)](https://codecov.io/gh//coreason_etl_oecd)
-[![Downloads](https://static.pepy.tech/badge/coreason_etl_oecd)](https://pepy.tech/project/coreason_etl_oecd)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
+This project implements a Type A pipeline according to the CoReason Data Engineering Standard.
 
-## Getting Started
+## Prerequisites
 
-### Prerequisites
-
-- Python 3.14+
+- Python 3.11+
 - uv
 
-### Installation
+## Setup
 
 1.  Clone the repository:
     ```sh
-    git clone https://github.com//coreason_etl_oecd.git
-    cd coreason_etl_oecd
+    git clone <repo-url>
+    cd coreason-etl-oecd-health
     ```
 2.  Install dependencies:
     ```sh
-    uv sync --all-extras --dev
+    uv pip install -e '.[dev]'
     ```
 
-### Usage
+## Development
 
--   Run the linter:
-    ```sh
-    uv run pre-commit run --all-files
-    ```
 -   Run the tests:
     ```sh
     uv run pytest
+    ```
+-   Run linting:
+    ```sh
+    uv run ruff format .
+    uv run ruff check --fix .
+    uv run pre-commit run --all-files
     ```
