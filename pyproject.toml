@@ -1,34 +1,82 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
 [project]
 name = "coreason-etl-oecd-health"
-version = "0.1.0"
-description = "Type A pipeline for ingesting, normalizing, and serving the OECD Health Statistics database."
+dynamic = ["version"]
+description = "A robust ETL pipeline for ingesting and normalizing OECD Health Statistics"
 readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+    { name = "Akshaya M", email = "akshaya.movvar@coreason.ai" },
+]
 dependencies = [
+    "loguru>=0.7.2",
     "dlt[postgres]",
     "dbt-postgres",
     "pydantic",
     "requests",
     "urllib3",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pytest",
-    "pytest-cov",
-    "responses",
-    "ruff",
-    "pre-commit",
-    "mypy",
-    "types-requests"
+license = { file = "LICENSE" }
+classifiers = [
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.1.5",
+    "pre-commit>=3.5.0",
+    "pytest-cov>=4.1.0",
+    "mypy>=1.6.0",
+    "pytest-asyncio",
+    "pytest-benchmark",
+    "deptry",
+    "deepdiff",
+    "hypothesis",
+    "syrupy",
+    "mkdocstrings-python",
+    "types-pyyaml",
+    "tzdata",
+    "pytest-xdist"
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/coreason_etl_oecd_health"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[project.urls]
+Homepage = "https://github.com//coreason_etl_oecd"
+Repository = "https://github.com//coreason_etl_oecd"
+Documentation = "https://github.com//coreason_etl_oecd"
 
 [tool.ruff]
 line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I", "UP", "SIM", "RUF", "ARG", "C4", "PT", "TCH", "FA", "PIE", "RET", "PERF", "FURB", "LOG", "N", "A", "S"]
+ignore = ["S101", "TC001", "TC002", "TC003", "UP037"]
 
 [tool.mypy]
+python_version = "3.11"
 strict = true
+disallow_untyped_defs = true
+warn_unused_ignores = false
+plugins = ["pydantic.mypy"]
+
+[tool.deptry]
+ignore = ["DEP002"]
+
+[tool.pytest.ini_options]
+addopts = "-n auto --cov=src --cov-report=term-missing --cov-report=html --cov-fail-under=100"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+omit = ["tests/*"]

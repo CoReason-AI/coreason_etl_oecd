@@ -24,7 +24,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          python-version: '3.14'
+          python-version: '3.11'
       - name: Install dependencies
         run: uv sync --all-extras --dev
         shell: bash
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.14"]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
       - name: Install uv
@@ -60,10 +60,6 @@ jobs:
         run: uv run pytest --cov=src --cov-report=xml
         shell: bash
 
-      - name: Build docs
-        run: uv run zensical build
-        shell: bash
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
@@ -78,7 +74,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, macos-latest]
-        python-version: ["3.14"]
+        python-version: ["3.11"]
     steps:
       - uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
       - name: Install uv
@@ -110,7 +106,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          python-version: "3.14"
+          python-version: "3.11"
       - name: Build wheel
         run: uv build
         shell: bash

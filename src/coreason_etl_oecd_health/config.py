@@ -3,8 +3,6 @@ Copyright (c) CoReason, Inc.
 This software is released under the Prosperity Public License 3.0.
 """
 
-from typing import List
-
 from pydantic import BaseModel, Field, HttpUrl
 
 
@@ -22,7 +20,7 @@ class OECDConfig(BaseModel):
         default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
         description="The base URL for the OECD SDMX REST API",
     )
-    datasets: List[DatasetConfig] = Field(
+    datasets: list[DatasetConfig] = Field(
         default=[
             DatasetConfig(
                 dataset_id="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
