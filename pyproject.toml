@@ -6,15 +6,13 @@ build-backend = "hatchling.build"
 name = "coreason-etl-oecd-health"
 version = "0.1.0"
 description = "Type A pipeline for ingesting, normalizing, and serving the OECD Health Statistics database."
-authors = [
-    { name = "Core Platform Team", email = "data.engineering@coreason.com" }
-]
+authors = [{ name = "CoReason Platform Team", email = "platform@coreason.com" }]
 requires-python = ">=3.11"
 dependencies = [
     "dlt[postgres]>=0.4.0",
     "dbt-postgres>=1.7.0",
     "pydantic>=2.0.0",
-    "requests>=2.31.0",
+    "requests>=2.30.0",
     "urllib3>=2.0.0",
 ]
 
@@ -22,58 +20,31 @@ dependencies = [
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
-    "responses>=0.25.0",
-    "pre-commit>=3.6.0",
     "ruff>=0.3.0",
     "mypy>=1.9.0",
-    "zensical",
-    "mkdocstrings",
-    "mkdocstrings-python",
+    "pre-commit>=3.6.0",
+    "types-requests>=2.30.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/coreason_etl_oecd_health"]
 
-[tool.pytest.ini_options]
-minversion = "8.0"
-addopts = "--cov=src/coreason_etl_oecd_health --cov-report=term-missing --cov-fail-under=100"
-testpaths = [
-    "tests",
-]
-
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py311"
 
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-]
-ignore = []
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "RUF"]
+ignore = ["COM812", "PGH003", "PLR2004"]
 
 [tool.mypy]
 python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-strict_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
+strict = true
 
 [[tool.mypy.overrides]]
-module = [
-    "dlt.*",
-    "requests.*",
-    "responses.*",
-]
+module = ["dlt.*"]
 ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=coreason_etl_oecd_health --cov-report=term-missing --cov-fail-under=100"
+testpaths = ["tests"]
