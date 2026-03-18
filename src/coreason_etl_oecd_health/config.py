@@ -1,38 +1,34 @@
 # Copyright (c) CoReason, Inc.
-# This software is released under the Prosperity Public License 3.0.
+# Released under the Prosperity Public License 3.0
+
 
 from pydantic import BaseModel, Field, HttpUrl
 
 
-class OECDDatasetConfig(BaseModel):
-    """Configuration for a specific OECD dataset."""
-
-    id: str = Field(..., description="The SDMX dataset identifier.")
-    description: str = Field(..., description="A human-readable description of the dataset.")
-    version: str = Field(default="1.0", description="The dataset version.")
+class OecdDatasetConfig(BaseModel):
+    dataset_id: str = Field(..., description="The ID of the dataset to be ingested")
+    description: str = Field(..., description="Human-readable description of the dataset")
 
 
-class OECDApiConfig(BaseModel):
-    """Configuration for the OECD SDMX API."""
-
+class OecdApiConfig(BaseModel):
     base_url: HttpUrl = Field(
         default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
-        description="The base endpoint for the OECD SDMX REST API.",
+        description="The base endpoint for the OECD SDMX REST API",
     )
-    datasets: list[OECDDatasetConfig] = Field(
-        default_factory=lambda: [
-            OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
+    datasets: list[OecdDatasetConfig] = Field(
+        default=[
+            OecdDatasetConfig(
+                dataset_id="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
                 description="Health Expenditure",
             ),
-            OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
+            OecdDatasetConfig(
+                dataset_id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
                 description="Provider Resources",
             ),
-            OECDDatasetConfig(
-                id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
+            OecdDatasetConfig(
+                dataset_id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
                 description="Healthcare Utilisation",
             ),
         ],
-        description="List of target datasets to ingest.",
+        description="List of target datasets to ingest from the API",
     )
