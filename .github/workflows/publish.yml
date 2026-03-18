@@ -23,7 +23,7 @@ jobs:
           python-version: '3.14'
 
       - name: Build Docs
-        run: uv run zensical build
+        run: # uv run zensical build
         shell: bash
 
       - name: Upload Pages artifact
