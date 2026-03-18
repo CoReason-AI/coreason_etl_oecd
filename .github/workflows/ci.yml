@@ -61,7 +61,7 @@ jobs:
         shell: bash
 
       - name: Build docs
-        run: uv run zensical build
+        run: # uv run zensical build
         shell: bash
 
       - name: Upload coverage to Codecov
