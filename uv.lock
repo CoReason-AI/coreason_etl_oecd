@@ -189,17 +189,17 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dbt-postgres", specifier = ">=1.7.0" },
-    { name = "dlt", extras = ["postgres"], specifier = ">=0.4.0" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.9.0" },
-    { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=3.6.0" },
-    { name = "pydantic", specifier = ">=2.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "requests", specifier = ">=2.30.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.3.0" },
-    { name = "types-requests", marker = "extra == 'dev'", specifier = ">=2.30.0" },
-    { name = "urllib3", specifier = ">=2.0.0" },
+    { name = "dbt-postgres" },
+    { name = "dlt", extras = ["postgres"] },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "pre-commit", marker = "extra == 'dev'" },
+    { name = "pydantic" },
+    { name = "pytest", marker = "extra == 'dev'" },
+    { name = "pytest-cov", marker = "extra == 'dev'" },
+    { name = "requests" },
+    { name = "ruff", marker = "extra == 'dev'" },
+    { name = "types-requests", marker = "extra == 'dev'" },
+    { name = "urllib3" },
 ]
 provides-extras = ["dev"]
 
