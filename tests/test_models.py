@@ -14,10 +14,7 @@ def test_oecd_endpoint_config_valid() -> None:
         description="Health Expenditure",
     )
     assert config.dataset_id == "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
-    assert (
-        str(config.url)
-        == "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_SHA@DF_SHA,1.0/all"
-    )
+    assert str(config.url) == "https://sdmx.oecd.org/public/rest/data/OECD.ELS.HD,DSD_SHA@DF_SHA,1.0/all"
     assert config.description == "Health Expenditure"
 
 
