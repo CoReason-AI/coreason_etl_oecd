@@ -27,16 +27,21 @@ def test_oecd_health_config_default() -> None:
     assert config.datasets[0].dataset_id == "health_expenditure"
     assert config.datasets[0].sdmx_id == "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
     assert config.timeout_seconds == 300
+    assert config.headers == {"Accept": "text/csv", "Accept-Encoding": "gzip"}
 
 
 def test_oecd_health_config_custom() -> None:
     """Test custom OECDHealthConfig instantiation."""
     datasets = [OECDHealthDatasetConfig(dataset_id="custom_id", sdmx_id="custom_sdmx_id")]
     config = OECDHealthConfig(
-        base_url="https://custom.url/", datasets=datasets, timeout_seconds=100
+        base_url="https://custom.url/",
+        datasets=datasets,
+        timeout_seconds=100,
+        headers={"Accept": "application/json"},
     )
     assert config.base_url == "https://custom.url/"
     assert len(config.datasets) == 1
     assert config.datasets[0].dataset_id == "custom_id"
     assert config.datasets[0].sdmx_id == "custom_sdmx_id"
     assert config.timeout_seconds == 100
+    assert config.headers == {"Accept": "application/json"}

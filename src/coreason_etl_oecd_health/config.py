@@ -35,3 +35,10 @@ class OECDHealthConfig(BaseModel):
         description="The list of target datasets to ingest.",
     )
     timeout_seconds: int = Field(default=300, description="Timeout for API requests in seconds.")
+    headers: dict[str, str] = Field(
+        default={
+            "Accept": "text/csv",
+            "Accept-Encoding": "gzip",
+        },
+        description="Mandatory HTTP headers for the OECD API requests.",
+    )
