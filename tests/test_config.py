@@ -1,61 +1,51 @@
 # Copyright (c) CoReason, Inc.
-# This software is released under the Prosperity Public License 3.0.
+# Released under the Prosperity Public License 3.0
 
 import pytest
-from coreason_etl_oecd_health.config import OECDApiConfig, OECDDatasetConfig
+from coreason_etl_oecd_health.config import OecdApiConfig, OecdDatasetConfig
 from pydantic import ValidationError
 
 
-def test_oecd_dataset_config_defaults() -> None:
-    """Test that OECDDatasetConfig has the correct default version."""
-    config = OECDDatasetConfig(id="test_id", description="test description")
-    assert config.id == "test_id"
-    assert config.description == "test description"
-    assert config.version == "1.0"
+def test_oecd_dataset_config_valid() -> None:
+    config = OecdDatasetConfig(dataset_id="TEST_ID", description="Test Description")
+    assert config.dataset_id == "TEST_ID"
+    assert config.description == "Test Description"
 
 
-def test_oecd_dataset_config_custom_version() -> None:
-    """Test that OECDDatasetConfig accepts a custom version."""
-    config = OECDDatasetConfig(id="test_id", description="test description", version="2.0")
-    assert config.version == "2.0"
+def test_oecd_dataset_config_missing_fields() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        OecdDatasetConfig()  # type: ignore
+    assert "2 validation errors for OecdDatasetConfig" in str(exc_info.value)
+    assert "dataset_id" in str(exc_info.value)
+    assert "description" in str(exc_info.value)
 
 
-def test_oecd_dataset_config_missing_required() -> None:
-    """Test that OECDDatasetConfig requires id and description."""
-    with pytest.raises(ValidationError):
-        OECDDatasetConfig(description="test")  # type: ignore
-
-    with pytest.raises(ValidationError):
-        OECDDatasetConfig(id="test")  # type: ignore
-
-
-def test_oecd_api_config_defaults() -> None:
-    """Test that OECDApiConfig has the correct defaults for base_url and datasets."""
-    config = OECDApiConfig()
+def test_oecd_api_config_default() -> None:
+    config = OecdApiConfig()
     assert str(config.base_url) == "https://sdmx.oecd.org/public/rest/data/"
     assert len(config.datasets) == 3
 
-    # Check datasets defaults
-    assert config.datasets[0].id == "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
-    assert config.datasets[0].description == "Health Expenditure"
-    assert config.datasets[0].version == "1.0"
-
-    assert config.datasets[1].id == "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0"
-    assert config.datasets[1].description == "Provider Resources"
-    assert config.datasets[1].version == "1.0"
-
-    assert config.datasets[2].id == "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0"
-    assert config.datasets[2].description == "Healthcare Utilisation"
-    assert config.datasets[2].version == "1.0"
+    dataset_ids = [d.dataset_id for d in config.datasets]
+    assert "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0" in dataset_ids
+    assert "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0" in dataset_ids
+    assert "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0" in dataset_ids
 
 
-def test_oecd_api_config_custom_values() -> None:
-    """Test that OECDApiConfig accepts custom base_url and datasets."""
-    custom_dataset = OECDDatasetConfig(id="custom_id", description="custom desc")
-    config = OECDApiConfig(
-        base_url="https://test.api.com/data/",  # type: ignore
-        datasets=[custom_dataset],
-    )
-    assert str(config.base_url) == "https://test.api.com/data/"
+def test_oecd_api_config_custom_url() -> None:
+    config = OecdApiConfig(base_url="https://api.example.com/data/")  # type: ignore
+    assert str(config.base_url) == "https://api.example.com/data/"
+
+
+def test_oecd_api_config_invalid_url() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        OecdApiConfig(base_url="not-a-url")  # type: ignore
+    assert "1 validation error for OecdApiConfig" in str(exc_info.value)
+    assert "base_url" in str(exc_info.value)
+
+
+def test_oecd_api_config_custom_datasets() -> None:
+    datasets = [OecdDatasetConfig(dataset_id="CUSTOM_ID", description="Custom Description")]
+    config = OecdApiConfig(datasets=datasets)
     assert len(config.datasets) == 1
-    assert config.datasets[0].id == "custom_id"
+    assert config.datasets[0].dataset_id == "CUSTOM_ID"
+    assert config.datasets[0].description == "Custom Description"
