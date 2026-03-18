@@ -5,46 +5,49 @@ build-backend = "hatchling.build"
 [project]
 name = "coreason-etl-oecd-health"
 version = "0.1.0"
-description = "Type A pipeline for ingesting, normalizing, and serving the OECD Health Statistics database."
-authors = [{ name = "CoReason Platform Team", email = "platform@coreason.com" }]
+description = "Pipeline for ingesting, normalizing, and serving the OECD Health Statistics database"
+authors = [
+    { name = "CoReason Data Engineering", email = "data-eng@coreason.example.com" }
+]
 requires-python = ">=3.11"
 dependencies = [
-    "dlt[postgres]",
-    "dbt-postgres",
-    "pydantic",
-    "requests",
-    "urllib3",
+    "dlt[postgres]>=0.4.5",
+    "dbt-postgres>=1.7.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "urllib3>=2.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "mypy",
-    "pre-commit",
-    "types-requests",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "requests-mock>=1.11.0",
+    "ruff>=0.3.0",
+    "mypy>=1.9.0",
+    "pre-commit>=3.6.0",
+    "types-requests>=2.31.0",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/coreason_etl_oecd_health"]
 
 [tool.ruff]
-line-length = 120
+line-length = 100
 target-version = "py311"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "ANN", "B", "A", "COM", "C4", "DTZ", "T10", "ISC", "ICN", "G", "INP", "PIE", "T20", "PYI", "PT", "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "INT", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "FLY", "NPY", "RUF"]
-ignore = ["COM812", "PGH003", "PLR2004"]
+select = ["E", "F", "I"]
 
 [tool.mypy]
 python_version = "3.11"
 strict = true
-
-[[tool.mypy.overrides]]
-module = ["dlt.*"]
-ignore_missing_imports = true
+warn_return_any = true
+warn_unused_configs = true
 
 [tool.pytest.ini_options]
-addopts = "--cov=coreason_etl_oecd_health --cov-report=term-missing --cov-fail-under=100"
-testpaths = ["tests"]
+minversion = "6.0"
+addopts = "-ra -q --cov=src --cov-report=term-missing"
+testpaths = [
+    "tests",
+]
