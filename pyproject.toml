@@ -9,21 +9,21 @@ description = "Type A pipeline for ingesting, normalizing, and serving the OECD 
 authors = [{ name = "CoReason Platform Team", email = "platform@coreason.com" }]
 requires-python = ">=3.11"
 dependencies = [
-    "dlt[postgres]>=0.4.0",
-    "dbt-postgres>=1.7.0",
-    "pydantic>=2.0.0",
-    "requests>=2.30.0",
-    "urllib3>=2.0.0",
+    "dlt[postgres]",
+    "dbt-postgres",
+    "pydantic",
+    "requests",
+    "urllib3",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=8.0.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.3.0",
-    "mypy>=1.9.0",
-    "pre-commit>=3.6.0",
-    "types-requests>=2.30.0",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "pre-commit",
+    "types-requests",
 ]
 
 [tool.hatch.build.targets.wheel]
