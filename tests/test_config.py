@@ -86,3 +86,27 @@ def test_oecd_config_empty_strings_allowed() -> None:
         config = OECDConfig()
         assert config.target_datasets == ()
         assert config.accept_header == ""
+
+
+def test_oecd_config_table_naming_convention() -> None:
+    """Test dynamic table generation adheres to the medallion naming rules."""
+    config = OECDConfig()
+
+    dataset = "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
+
+    bronze_table = config.get_table_name("Bronze", dataset)
+    assert bronze_table == "coreason_etl_oecd_health_bronze_oecd_els_hd_dsd_sha_df_sha_1_0"
+
+    silver_table = config.get_table_name("SILVER", "my_custom_file")
+    assert silver_table == "coreason_etl_oecd_health_silver_my_custom_file"
+
+    gold_table = config.get_table_name("gold", "oecd_finances")
+    assert gold_table == "coreason_etl_oecd_health_gold_oecd_finances"
+
+
+def test_oecd_config_invalid_layer() -> None:
+    """Test an invalid medallion layer throws a value error."""
+    config = OECDConfig()
+    with pytest.raises(ValueError) as exc_info:
+        config.get_table_name("platinum", "my_file")
+    assert "invalid medallion layer" in str(exc_info.value).lower()

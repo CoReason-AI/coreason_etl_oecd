@@ -35,6 +35,24 @@ class OECDConfig(BaseSettings):
         description="Maximum number of retries for external HTTP requests.",
     )
 
+    # Database Schema Definitions
+    bronze_schema: str = Field(default="bronze", description="Bronze database schema name.")
+    silver_schema: str = Field(default="silver", description="Silver database schema name.")
+    gold_schema: str = Field(default="gold", description="Gold database schema name.")
+
+    def get_table_name(self, layer: str, filename: str) -> str:
+        """
+        Dynamically generates standard table names following Medallion architecture.
+        Convention: <package_name>_<layer>_<filename>
+        """
+        layer_lower = layer.lower()
+        if layer_lower not in ["bronze", "silver", "gold"]:
+            raise ValueError(f"Invalid medallion layer: {layer}")
+
+        # sanitize the filename to act as a valid table identifier
+        safe_filename = filename.replace(".", "_").replace(",", "_").replace("@", "_").lower()
+        return f"coreason_etl_oecd_health_{layer_lower}_{safe_filename}"
+
     model_config = SettingsConfigDict(
         env_prefix="OECD_",
         env_file=".env",
