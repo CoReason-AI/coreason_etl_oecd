@@ -14,17 +14,13 @@ class OECDConfig(BaseSettings):
     )
 
     # Target Datasets
-    health_expenditure_dataset: str = Field(
-        default="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
-        description="Health Expenditure Dataset ID.",
-    )
-    provider_resources_dataset: str = Field(
-        default="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
-        description="Provider Resources Dataset ID.",
-    )
-    healthcare_utilisation_dataset: str = Field(
-        default="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
-        description="Healthcare Utilisation Dataset ID.",
+    target_datasets: tuple[str, ...] = Field(
+        default=(
+            "OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
+            "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
+            "OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
+        ),
+        description="List of target OECD SDMX Dataset IDs to extract.",
     )
 
     # Expected response format
