@@ -56,3 +56,35 @@ def test_oecd_config_invalid_max_retries() -> None:
         with pytest.raises(ValidationError) as exc_info:
             OECDConfig()
         assert "integer" in str(exc_info.value).lower()
+
+
+def test_oecd_config_extra_env_ignored() -> None:
+    """Test that extra environment variables with the OECD_ prefix are ignored."""
+    env_overrides = {"OECD_UNKNOWN_FIELD": "some_value"}
+    with patch.dict(os.environ, env_overrides, clear=True):
+        config = OECDConfig()
+        assert not hasattr(config, "unknown_field")
+
+
+def test_oecd_config_case_insensitivity() -> None:
+    """Test that environment variables are matched case-insensitively."""
+    env_overrides = {
+        "oecd_base_endpoint": "https://lower.case.org/data/",
+        "OeCd_MaX_rEtRiEs": "10",
+    }
+    with patch.dict(os.environ, env_overrides, clear=True):
+        config = OECDConfig()
+        assert str(config.base_endpoint) == "https://lower.case.org/data/"
+        assert config.max_retries == 10
+
+
+def test_oecd_config_empty_strings_allowed() -> None:
+    """Test that empty string environment variables are accepted for string fields."""
+    env_overrides = {
+        "OECD_HEALTH_EXPENDITURE_DATASET": "",
+        "OECD_ACCEPT_HEADER": "",
+    }
+    with patch.dict(os.environ, env_overrides, clear=True):
+        config = OECDConfig()
+        assert config.health_expenditure_dataset == ""
+        assert config.accept_header == ""
