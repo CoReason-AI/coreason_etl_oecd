@@ -1,44 +1,47 @@
 # Copyright (c) CoReason, Inc.
-# This software is released under the Prosperity Public License 3.0.
+# Released under the Prosperity Public License 3.0
 
-from pydantic import BaseModel, Field
-
-
-class OECDHealthDatasetConfig(BaseModel):
-    """Configuration for an OECD Health dataset endpoint."""
-
-    dataset_id: str = Field(..., description="The ID of the dataset to be used internally.")
-    sdmx_id: str = Field(..., description="The SDMX identifier for the dataset.")
+from pydantic import Field, HttpUrl
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class OECDHealthConfig(BaseModel):
-    """Configuration for the OECD Health data ingestion."""
+class OECDConfig(BaseSettings):
+    """Configuration for the OECD SDMX REST API extraction."""
 
-    base_url: str = Field(
-        default="https://sdmx.oecd.org/public/rest/data/",
-        description="The base URL for the OECD SDMX REST API.",
+    base_endpoint: HttpUrl = Field(
+        default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
+        description="The base endpoint for the OECD SDMX REST API.",
     )
-    datasets: list[OECDHealthDatasetConfig] = Field(
-        default=[
-            OECDHealthDatasetConfig(
-                dataset_id="health_expenditure", sdmx_id="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0"
-            ),
-            OECDHealthDatasetConfig(
-                dataset_id="provider_resources",
-                sdmx_id="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
-            ),
-            OECDHealthDatasetConfig(
-                dataset_id="healthcare_utilisation",
-                sdmx_id="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
-            ),
-        ],
-        description="The list of target datasets to ingest.",
+
+    # Target Datasets
+    health_expenditure_dataset: str = Field(
+        default="OECD.ELS.HD,DSD_SHA@DF_SHA,1.0",
+        description="Health Expenditure Dataset ID.",
     )
-    timeout_seconds: int = Field(default=300, description="Timeout for API requests in seconds.")
-    headers: dict[str, str] = Field(
-        default={
-            "Accept": "text/csv",
-            "Accept-Encoding": "gzip",
-        },
-        description="Mandatory HTTP headers for the OECD API requests.",
+    provider_resources_dataset: str = Field(
+        default="OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_HOSP_REAC,1.0",
+        description="Provider Resources Dataset ID.",
+    )
+    healthcare_utilisation_dataset: str = Field(
+        default="OECD.ELS.HD,DSD_HEALTH_PROC@DF_KEY_INDIC,1.0",
+        description="Healthcare Utilisation Dataset ID.",
+    )
+
+    # Expected response format
+    accept_header: str = Field(
+        default="text/csv",
+        description="The accept header to force CSV returns.",
+    )
+
+    # The maximum number of retry attempts for HTTP requests
+    max_retries: int = Field(
+        default=3,
+        description="Maximum number of retries for external HTTP requests.",
+    )
+
+    model_config = SettingsConfigDict(
+        env_prefix="OECD_",
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
     )
