@@ -9,10 +9,10 @@ import requests_mock
 from coreason_etl_oecd_health.config import OECDApiConfig
 from coreason_etl_oecd_health.dlt.ingest import (
     coreason_oecd_health_pipeline,
-    get_resilient_session,
     oecd_health_datasets,
     stream_oecd_dataset,
 )
+from dlt.sources.helpers.requests import Client
 
 
 @pytest.fixture
@@ -31,15 +31,6 @@ def sample_csv_data() -> str:
     return "REF_AREA,MEASURE,TIME_PERIOD,OBS_VALUE\nUS,EXP,2020,10.5\nUK,EXP,2021,12.3\n"
 
 
-def test_get_resilient_session(mock_config: OECDApiConfig) -> None:
-    """Test that the session is configured with the correct retry strategy."""
-    session = get_resilient_session(mock_config)
-    adapter = session.get_adapter("https://")
-
-    assert getattr(adapter, "max_retries").total == mock_config.retry_count
-    assert list(getattr(adapter, "max_retries").status_forcelist) == [429, 500, 502, 503, 504]
-
-
 def test_stream_oecd_dataset_success(
     requests_mock: requests_mock.Mocker,
     mock_config: OECDApiConfig,
@@ -48,7 +39,9 @@ def test_stream_oecd_dataset_success(
     """Test memory-safe CSV streaming and Medallion formatting."""
     dataset_id = "TEST_DATASET"
     batch_ts = datetime.now(timezone.utc).isoformat()
-    session = get_resilient_session(mock_config)
+    client = Client(
+        request_timeout=mock_config.timeout, request_max_attempts=mock_config.retry_count
+    )
 
     # Mock the streaming endpoint
     url = f"{str(mock_config.base_url).rstrip('/')}/{dataset_id}/all"
@@ -60,7 +53,7 @@ def test_stream_oecd_dataset_success(
     )
 
     # Consume the generator
-    results = list(stream_oecd_dataset(dataset_id, session, mock_config, batch_ts))
+    results = list(stream_oecd_dataset(dataset_id, client, mock_config, batch_ts))
 
     assert len(results) == 2
 
@@ -85,7 +78,9 @@ def test_stream_oecd_dataset_missing_keys(
     """Test composite source_id handles missing columns gracefully."""
     dataset_id = "TEST_DATASET"
     batch_ts = "2024-01-01T00:00:00Z"
-    session = get_resilient_session(mock_config)
+    client = Client(
+        request_timeout=mock_config.timeout, request_max_attempts=mock_config.retry_count
+    )
 
     url = f"{str(mock_config.base_url).rstrip('/')}/{dataset_id}/all"
 
@@ -94,7 +89,7 @@ def test_stream_oecd_dataset_missing_keys(
 
     requests_mock.get(url, text=csv_missing_keys, status_code=200)
 
-    results = list(stream_oecd_dataset(dataset_id, session, mock_config, batch_ts))
+    results = list(stream_oecd_dataset(dataset_id, client, mock_config, batch_ts))
 
     assert len(results) == 1
     assert results[0]["source_id"] == "UNKNOWN_UNKNOWN_UNKNOWN"
@@ -106,7 +101,11 @@ def test_stream_oecd_dataset_http_error(
 ) -> None:
     """Test that HTTP errors are raised correctly."""
     dataset_id = "TEST_DATASET"
-    session = get_resilient_session(mock_config)
+    client = Client(
+        request_timeout=mock_config.timeout,
+        request_max_attempts=mock_config.retry_count,
+        raise_for_status=True,
+    )
 
     url = f"{str(mock_config.base_url).rstrip('/')}/{dataset_id}/all"
 
@@ -114,7 +113,7 @@ def test_stream_oecd_dataset_http_error(
     requests_mock.get(url, status_code=404)
 
     with pytest.raises(requests.exceptions.HTTPError):
-        list(stream_oecd_dataset(dataset_id, session, mock_config, "2024-01-01T00:00:00Z"))
+        list(stream_oecd_dataset(dataset_id, client, mock_config, "2024-01-01T00:00:00Z"))
 
 
 def test_dlt_resource_generation(

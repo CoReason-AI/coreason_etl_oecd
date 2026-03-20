@@ -8,35 +8,16 @@ from datetime import datetime, timezone
 from typing import Any
 
 import dlt
-import requests
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
+from dlt.sources.helpers.requests import Client
 
 from coreason_etl_oecd_health.config import OECDApiConfig
 
 logger = logging.getLogger(__name__)
 
 
-def get_resilient_session(config: OECDApiConfig) -> requests.Session:
-    """
-    AGENT INSTRUCTION: Configure a resilient requests.Session with urllib3.util.Retry.
-    """
-    session = requests.Session()
-    retry_strategy = Retry(
-        total=config.retry_count,
-        backoff_factor=1,
-        status_forcelist=[429, 500, 502, 503, 504],
-        allowed_methods=["GET"],
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    session.mount("https://", adapter)
-    session.mount("http://", adapter)
-    return session
-
-
 def stream_oecd_dataset(
     dataset_id: str,
-    session: requests.Session,
+    client: Client,
     config: OECDApiConfig,
     batch_ts: str,
 ) -> Iterator[dict[str, Any]]:
@@ -58,9 +39,8 @@ def stream_oecd_dataset(
 
     logger.info(f"Starting memory-safe streaming for {dataset_id} via {url}")
 
-    with session.get(url, headers=headers, stream=True, timeout=config.timeout) as response:
-        response.raise_for_status()
-
+    with client.get(url, headers=headers, stream=True) as response:
+        # Client raises automatically based on raise_for_status=True default
         # memory-safe CSV parsing
         lines = (line for line in response.iter_lines(decode_unicode=True) if line)
         reader = csv.DictReader(lines)
@@ -90,10 +70,17 @@ def oecd_health_datasets(
     Configured with max_table_nesting=0 to force raw_data dictionary to land as JSONB.
     """
     batch_ts = datetime.now(timezone.utc).isoformat()
-    session = get_resilient_session(config)
+
+    # Use dlt's built-in resilient requests client
+    client = Client(
+        request_timeout=config.timeout,
+        request_max_attempts=config.retry_count,
+        status_codes=(429, 500, 502, 503, 504),
+        raise_for_status=True,
+    )
 
     for dataset_id in config.target_datasets:
-        yield stream_oecd_dataset(dataset_id, session, config, batch_ts)
+        yield stream_oecd_dataset(dataset_id, client, config, batch_ts)
 
 
 @dlt.source(name="coreason_oecd_health_pipeline")
