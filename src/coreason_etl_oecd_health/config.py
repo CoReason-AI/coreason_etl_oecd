@@ -1,14 +1,14 @@
 # Copyright (c) CoReason, Inc.
 # Released under the Prosperity Public License 3.0
 
-from pydantic import Field, HttpUrl
+from pydantic import Field, HttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class OECDConfig(BaseSettings):
-    """Configuration for the OECD SDMX REST API extraction."""
+class OECDApiConfig(BaseSettings):
+    """Configuration for the OECD SDMX REST API extraction and database schema."""
 
-    base_endpoint: HttpUrl = Field(
+    base_url: HttpUrl = Field(
         default=HttpUrl("https://sdmx.oecd.org/public/rest/data/"),
         description="The base endpoint for the OECD SDMX REST API.",
     )
@@ -29,16 +29,38 @@ class OECDConfig(BaseSettings):
         description="The accept header to force CSV returns.",
     )
 
-    # The maximum number of retry attempts for HTTP requests
-    max_retries: int = Field(
-        default=3,
+    # Required parameters to defend against 504 Gateway Timeouts on large SDMX datasets
+    timeout: int = Field(
+        default=30,
+        ge=30,
+        description="HTTP request timeout in seconds. Defends against slow OECD API responses.",
+    )
+
+    retry_count: int = Field(
+        default=5,
+        ge=0,
         description="Maximum number of retries for external HTTP requests.",
+    )
+
+    chunk_by_time_period: bool = Field(
+        default=True,
+        description="Enforce chunking by TIME_PERIOD to prevent 504 Gateway Timeouts.",
     )
 
     # Database Schema Definitions
     bronze_schema: str = Field(default="bronze", description="Bronze database schema name.")
     silver_schema: str = Field(default="silver", description="Silver database schema name.")
     gold_schema: str = Field(default="gold", description="Gold database schema name.")
+
+    # Deterministic sorting for dataset IDs
+    @field_validator("target_datasets", mode="after")
+    @classmethod
+    def sort_target_datasets(cls, v: tuple[str, ...]) -> tuple[str, ...]:
+        """
+        AGENT INSTRUCTION: Ensure deterministic sorting of target datasets
+        to guarantee consistent hashing and predictable extraction order.
+        """
+        return tuple(sorted(v))
 
     def get_table_name(self, layer: str, filename: str) -> str:
         """
