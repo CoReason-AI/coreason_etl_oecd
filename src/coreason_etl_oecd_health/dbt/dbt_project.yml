@@ -1,0 +1,32 @@
+# Copyright (c) CoReason, Inc.
+# Released under the Prosperity Public License 3.0
+
+name: "coreason_etl_oecd_health"
+version: "0.1.0"
+config-version: 2
+
+profile: "coreason_oecd_health"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  coreason_etl_oecd_health:
+    bronze:
+      +materialized: view
+      +schema: bronze
+    silver:
+      +materialized: incremental
+      +unique_key: coreason_id
+      +schema: silver
+    gold:
+      +materialized: table
+      +schema: gold

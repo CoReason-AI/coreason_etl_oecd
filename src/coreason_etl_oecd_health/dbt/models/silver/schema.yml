@@ -1,0 +1,8 @@
+# Copyright (c) CoReason, Inc.
+# Released under the Prosperity Public License 3.0
+
+version: 2
+
+models:
+  - name: silver_oecd_health_metrics
+    description: "Standardized silver layer metrics, dual ID generated."

@@ -1,0 +1,22 @@
+# Copyright (c) CoReason, Inc.
+# Released under the Prosperity Public License 3.0
+
+version: 2
+
+sources:
+  - name: coreason_etl_oecd_health
+    description: "Raw OECD Health Statistics ingested via dlt pipeline"
+    schema: bronze
+    tables:
+      - name: oecd_health_datasets
+        description: "Raw JSONB payload containing the SDMX CSV stream."
+        columns:
+          - name: dataset_id
+            data_type: text
+          - name: source_id
+            data_type: text
+          - name: ingestion_ts
+            data_type: timestamp
+          - name: raw_data
+            data_type: jsonb
+            description: "Dictionary yielded by dlt configured with max_table_nesting=0."
