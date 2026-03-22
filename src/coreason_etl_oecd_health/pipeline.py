@@ -72,11 +72,12 @@ def run_pipeline() -> None:
         logger.info(f"dlt load completed: {load_info}", extra=extra)
 
         # Log rows loaded for Observability Mandate
+        # Log rows loaded for Observability Mandate
         for package in load_info.load_packages:
-            for job in package.jobs["completed_jobs"]:
+            for job in package.jobs.get("completed_jobs", []):
                 if job.job_file_info.table_name == "oecd_health_datasets":
                     logger.info(
-                        f"Rows successfully loaded into Bronze: {job.job_file_info.file_size}",
+                        f"Successfully loaded job for Bronze table: {job.job_file_info.table_name} (Job ID: {job.job_file_info.file_id})",
                         extra=extra,
                     )
 
@@ -91,7 +92,12 @@ def run_pipeline() -> None:
     try:
         # Run dbt using the subprocess module for isolated execution
         subprocess.run(
-            ["dbt", "run", "--project-dir", str(dbt_project_dir)],
+            [
+                "dbt", 
+                "run", 
+                "--project-dir", str(dbt_project_dir),
+                "--profiles-dir", str(dbt_project_dir)  # <-- ADD THIS LINE
+            ],
             check=True,
             capture_output=True,
             text=True,

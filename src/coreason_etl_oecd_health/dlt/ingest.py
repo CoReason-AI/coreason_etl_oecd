@@ -3,11 +3,13 @@
 
 import csv
 import logging
+import time
 from collections.abc import Iterator
 from datetime import datetime, timezone
 from typing import Any
 
 import dlt
+import requests
 from dlt.sources.helpers.requests import Client
 
 from coreason_etl_oecd_health.config import OECDApiConfig
@@ -26,39 +28,63 @@ def stream_oecd_dataset(
     Must use requests.get(stream=True) and response.iter_lines(decode_unicode=True)
     to protect memory from massive OECD CSV files.
     """
-    # Force CSV returns & compress the payload over the wire
     headers = {
         "Accept": config.accept_header,
         "Accept-Encoding": "gzip",
     }
 
-    # Optional chunking suffix /all vs specific time periods.
-    # For now, default to /all to demonstrate memory-safe extraction.
-    # Advanced TIME_PERIOD chunking logic can be integrated into URL builder.
-    url = f"{str(config.base_url).rstrip('/')}/{dataset_id}/all"
+    if config.chunk_by_time_period:
+        current_year = datetime.now(timezone.utc).year
+        # SHORTENED TIMEFRAME: Fetch from 2020 to present to avoid 429 rate limits
+        years_to_fetch = list(range(2023, current_year + 1))
+        logger.info(f"Chunking {dataset_id} sequentially from 2020 to {current_year}")
+    else:
+        years_to_fetch = [None] 
 
-    logger.info(f"Starting memory-safe streaming for {dataset_id} via {url}")
+    for year in years_to_fetch:
+        base_url = f"{str(config.base_url).rstrip('/')}/{dataset_id}/all"
+        
+        if year is not None:
+            url = f"{base_url}?startPeriod={year}&endPeriod={year}"
+            logger.info(f"Extracting {dataset_id} for year: {year}")
+        else:
+            url = base_url
 
-    with client.get(url, headers=headers, stream=True) as response:
-        # Client raises automatically based on raise_for_status=True default
-        # memory-safe CSV parsing
-        lines = (line for line in response.iter_lines(decode_unicode=True) if line)
-        reader = csv.DictReader(lines)
+        try:
+            with client.get(url, headers=headers, stream=True) as response:
+                lines = (line for line in response.iter_lines(decode_unicode=True) if line)
+                reader = csv.DictReader(lines)
 
-        for row_dict in reader:
-            # Create a composite source ID: <REF_AREA>_<MEASURE>_<TIME_PERIOD>
-            ref_area = row_dict.get("REF_AREA", "UNKNOWN")
-            measure = row_dict.get("MEASURE", "UNKNOWN")
-            time_period = row_dict.get("TIME_PERIOD", "UNKNOWN")
-            source_id = f"{ref_area}_{measure}_{time_period}"
+                for row_dict in reader:
+                    ref_area = row_dict.get("REF_AREA", "UNKNOWN")
+                    measure = row_dict.get("MEASURE", "UNKNOWN")
+                    time_period = row_dict.get("TIME_PERIOD", "UNKNOWN")
+                    source_id = f"{ref_area}_{measure}_{time_period}"
 
-            # Format strictly matching the mandate
-            yield {
-                "dataset_id": dataset_id,
-                "source_id": source_id,
-                "ingestion_ts": batch_ts,
-                "raw_data": row_dict,
-            }
+                    yield {
+                        "dataset_id": dataset_id,
+                        "source_id": source_id,
+                        "ingestion_ts": batch_ts,
+                        "raw_data": row_dict,
+                    }
+                    
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                logger.warning(f"No data available for {dataset_id} in year {year} (404). Skipping.")
+                continue
+            elif e.response.status_code == 429:
+                logger.warning(f"Rate limited by OECD (429) for {dataset_id} in year {year}. Skipping.")
+                time.sleep(5.0)
+                continue
+            else:
+                logger.error(f"Extraction failed for {dataset_id} at {url}: {str(e)}")
+                raise e
+        except Exception as e:
+            logger.error(f"Extraction failed for {dataset_id} at {url}: {str(e)}")
+            raise e
+        
+        # Increased pause to 3 seconds to be extra polite to the server
+        time.sleep(3.0)
 
 
 @dlt.resource(name="oecd_health_datasets", max_table_nesting=0)
@@ -71,11 +97,11 @@ def oecd_health_datasets(
     """
     batch_ts = datetime.now(timezone.utc).isoformat()
 
-    # Use dlt's built-in resilient requests client
     client = Client(
         request_timeout=config.timeout,
         request_max_attempts=config.retry_count,
-        status_codes=(429, 500, 502, 503, 504),
+        # Removed 429 from auto-retry so our custom exception handler can process it
+        status_codes=(500, 502, 503, 504),
         raise_for_status=True,
     )
 

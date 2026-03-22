@@ -54,3 +54,8 @@ addopts = "-ra -q --cov=src --cov-report=term-missing"
 testpaths = [
     "tests",
 ]
+
+[tool.uv]
+override-dependencies = [
+    "mashumaro[msgpack]>=3.17"
+]
